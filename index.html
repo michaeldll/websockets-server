@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+		<title>Websockets Server</title>
+		<style>
+		</style>
+	</head>
+
+	<body>
+		<script>
+			const HOST = location.origin.replace(/^http/, 'ws')
+			const WEBSOCKET = new WebSocket(HOST)
+
+			const sendToServer = (type, value) => {
+				const message = { type: type, message: JSON.stringify(value) }
+				const string = JSON.stringify(message)
+				console.log(string);
+				WEBSOCKET.send(string)
+			}
+
+			/**
+			 * Handle Websockets
+			 */
+
+			const handleWebsockets = () => {
+				const getWebSocketDataFromBlobText = text => {
+					const regex = /.*(type)(\W)(.*)(\W)(message)(\W)(.*)(\W)(id)(\W)(.*).*/gm
+					let matches
+					let data = {
+						id: '',
+						type: '',
+						message: {},
+					}
+
+					while ((matches = regex.exec(text)) !== null) {
+						// This is necessary to avoid infinite loops with zero-width matches
+						if (matches.index === regex.lastIndex) {
+							regex.lastIndex++
+						}
+
+						// The result can be accessed through the `matches`-variable.
+						matches.forEach((match, groupIndex) => {
+							switch (groupIndex) {
+								case 3:
+									data.type = match
+									break
+								case 7:
+									data.message = match
+									break
+								case 11:
+									data.id = match
+									break
+								default:
+									break
+							}
+						})
+					}
+
+					return data
+				}
+
+				WEBSOCKET.onopen = event => {
+					isWebsocketsConnected = true
+				}
+
+				WEBSOCKET.onmessage = event => {
+					let data
+					let message
+
+					if (event.data instanceof Blob) {
+						event.data.text().then(text => {
+							data = getWebSocketDataFromBlobText(text) //{id: ..., type: ...,message: {...}}
+							message = JSON.parse(data.message)
+							console.log(data.id, data.type, message)
+						})
+					} else {
+						data = JSON.parse(event.data)
+						message = JSON.parse(data.message)
+
+					}
+				}
+			}
+
+			/**
+			 * Initialize experience
+			 */
+			handleWebsockets()
+
+			setTimeout(() => {
+				sendToServer("test", "value")
+			}, 3000);
+		</script>
+	</body>
+</html>
