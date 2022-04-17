@@ -29,6 +29,7 @@ wss.on('connection', (ws) => {
 			//only send if two different clients connected
 			// if (client !== ws) {
 			console.log("sending data");
+			client.send(data)
 			// }
 		});
 	});
