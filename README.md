@@ -1,4 +1,4 @@
-# Home sweet Home Websockets server
+# Websockets server
 
 ```javascript
 npm install
