@@ -27,10 +27,9 @@ wss.on('connection', (ws) => {
 		console.log(data);
 		wss.clients.forEach(function each(client) {
 			//only send if two different clients connected
-			if (client !== ws) {
-				console.log("sending data");
-				client.send(data)
-			}
+			// if (client !== ws) {
+			console.log("sending data");
+			// }
 		});
 	});
 	ws.on('close', () => console.log('Client disconnected'));
